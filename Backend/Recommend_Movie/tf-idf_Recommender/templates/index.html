@@ -131,7 +131,8 @@
     const spinner = document.getElementById("loadingSpinner");
     const historyList = document.getElementById("historyList");
 
-    const fallbackImage = "https://www.flaticon.com/free-icon/photo_15795219?term=no+image&page=1&position=3&origin=tag&related_id=15795219";
+const fallbackImage = "/static/ImageNotFound.png";
+
 
     let searchHistory = [];
 
@@ -175,7 +176,7 @@
             const div = document.createElement("div");
             div.className = "movie";
             div.innerHTML = `
-              <img src="${movie.poster_url || fallbackImage}" onerror="this.src='${fallbackImage}'" alt="Poster">
+              <img src="${movie.poster || fallbackImage}" onerror="this.src='${fallbackImage}'" alt="Poster">
               <div>
                 <strong>${movie.title}</strong><br>
                 <em>${movie.genres}</em>

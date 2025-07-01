@@ -34,6 +34,6 @@ def get_recommendations(title):
         recommendations.append({
             "title": movie['title'],
             "overview": movie['overview'],
-            "poster_path": f"https://image.tmdb.org/t/p/w200{movie['poster_path']}" if movie.get('poster_path') else None
+            "poster": f"https://image.tmdb.org/t/p/w200{movie['poster_path']}" if movie.get('poster_path') else None
         })
     return recommendations

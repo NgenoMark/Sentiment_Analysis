@@ -36,7 +36,8 @@ def get_similar_movies(title):
         {
             "title": movie["title"],
             "overview": movie["overview"],
-            "genres": [genre_map.get(genre_id, "Unknown") for genre_id in movie.get("genre_ids", [])]
+            "genres": [genre_map.get(genre_id, "Unknown") for genre_id in movie.get("genre_ids", [])],
+             "poster": f"https://image.tmdb.org/t/p/w500{movie['poster_path']}" if movie.get("poster_path") else "/static/ImageNotFound.png"
         }
         for movie in data.get("results", [])
     ]
@@ -48,8 +49,8 @@ def home():
 @app.route("/recommend", methods=["GET"])
 def recommend():
     title = request.args.get("title", "")
-    recommendations = get_similar_movies(title)
-    return jsonify(recommendations)
+    if not title:
+        return jsonify([])
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    recommendations = semantic_search(title)
+    return jsonify(recommendations)
