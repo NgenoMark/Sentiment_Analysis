@@ -10,6 +10,10 @@ import csv
 import re
 import tensorflow as tf
 from transformers import TFDistilBertForSequenceClassification, DistilBertTokenizerFast
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 app = Flask(__name__)
@@ -143,7 +147,13 @@ def post_comment():
 
 
 # ========== YouTube API Integration ==========
-YOUTUBE_API_KEY =  "AIzaSyCdXAt28SWhQEtDqoF2a01Zpw19BYW_DMY"  # Replace securely
+
+# Access the API key
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+
+# Optional: Warn if it's not set
+if not YOUTUBE_API_KEY:
+    raise ValueError("❌ YOUTUBE_API_KEY is not set in the .env file!")
 
 @app.route("/trailer/<movie_title>")
 def get_trailer(movie_title):
