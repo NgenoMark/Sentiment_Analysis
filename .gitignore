@@ -5,3 +5,5 @@ data.zip
 Backend/models/bert_sentiment_model/
 
 emotions/
+
+Backend/Recommend_Movie/Bert_Recommender/bert_data/
