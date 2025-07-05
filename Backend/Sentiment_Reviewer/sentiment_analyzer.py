@@ -2,6 +2,8 @@
 # ollama run llama3
 
 import os
+os.environ["MISTRAL_API_KEY"] = "your_api_key_here"
+
 import pandas as pd
 import numpy as np
 from transformers import TFDistilBertForSequenceClassification, DistilBertTokenizerFast
