@@ -1,8 +1,12 @@
 import requests
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Store your API key here or load from env for security
-TMDB_API_KEY = "2ebe4a9d7359a4b32ad7b87397279dff"
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
 def get_poster_url(movie_title):
     url = f"https://api.themoviedb.org/3/search/movie"
