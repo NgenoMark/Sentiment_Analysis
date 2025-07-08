@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PulseReel Admin | Movie Review Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f4f7fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      padding: 2rem 1rem;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.3rem;
+    }
+    .intro {
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.1rem;
+      color: #555;
+    }
+    .search-form {
+      text-align: center;
+      margin: 1rem;
+    }
+    .search-form input {
+      padding: 0.7rem;
+      width: 50%;
+      max-width: 400px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .search-form button {
+      padding: 0.7rem 1.5rem;
+      background: #2575fc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      margin-left: 0.5rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .grid-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+    .movie-card {
+      background: white;
+      padding: 1rem;
+      width: 220px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      text-align: center;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .movie-card:hover {
+      transform: translateY(-5px);
+    }
+    .movie-card img {
+      width: 100%;
+      border-radius: 12px;
+      height: 330px;
+      object-fit: cover;
+    }
+    .movie-card h3 {
+      font-size: 1.1rem;
+      margin: 0.7rem 0 0;
+      color: #2575fc;
+    }
+    .movie-card p {
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 0.5rem;
+    }
+    .no-movies {
+      text-align: center;
+      font-style: italic;
+      color: #777;
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎮 PulseReel Admin Dashboard</h1>
+  </header>
+
+  <div class="intro">
+    <p>Search and select a movie to analyze reviews using BERT-based sentiment analysis</p>
+  </div>
+
+  <div class="search-form">
+    <form method="POST" action="/admin/search">
+      <input type="text" name="movie_title" placeholder="Enter movie title..." required>
+      <button type="submit">🔍 Analyze</button>
+    </form>
+  </div>
+
+  {% if movie_cards %}
+    <div class="grid-container">
+      {% for movie in movie_cards %}
+        <div class="movie-card" onclick="location.href='/admin/movie/{{ movie.title | urlencode }}'">
+          <img src="{{ movie.poster }}" alt="{{ movie.title }}">
+          <h3>{{ movie.title }}</h3>
+<!--          <p>{{ movie.genre }}</p>-->
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="no-movies">
+      <p>No movies found with review data.</p>
+    </div>
+  {% endif %}
+</body>
+</html>
