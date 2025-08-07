@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ movie.movie_name }} | PulseReel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #f8f9fa, #eaf1fc);
+      color: #333;
+    }
+    header {
+      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .content {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+    .poster {
+      flex: 1;
+    }
+    .poster img {
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .details {
+      flex: 2;
+    }
+    .details h1 {
+      margin-top: 0;
+      color: #2575fc;
+      font-size: 2.5rem;
+    }
+    .details p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin: 0.5rem 0;
+    }
+    .label {
+      font-weight: bold;
+      color: #444;
+    }
+    .section {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #2575fc;
+    }
+    .section ul {
+      padding-left: 1.25rem;
+    }
+    .analyze-btn {
+      background: #2575fc;
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .analyze-btn:hover {
+      background: #1b5edb;
+    }
+
+    /* Feedback styling */
+    .feedback-section h4 {
+      color: #2575fc;
+      margin-bottom: 0.5rem;
+    }
+
+    .feedback-section p {
+      margin: 0.25rem 0 1rem;
+      line-height: 1.6;
+    }
+
+    .feedback-section ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .feedback-section li {
+      margin-bottom: 0.4rem;
+    }
+
+    /* Comment Display Styles */
+    .comment-table {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .comment-column {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .comment-column h4 {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: #2575fc;
+      border-bottom: 2px solid #2575fc;
+      padding-bottom: 0.25rem;
+    }
+
+    .comment-card {
+      background-color: #f9fbff;
+      border: 1px solid #dee2e6;
+      border-left: 5px solid #2575fc;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .comment-column.negative .comment-card {
+      border-left-color: #e55353;
+    }
+
+    .comment-column.negative h4 {
+      color: #e55353;
+      border-color: #e55353;
+    }
+  </style>
+
+  <script>
+    async function analyzeSentiment(movieTitle) {
+      const resultBox = document.getElementById("analysis-results");
+      const commentsBox = document.getElementById("comments-section");
+      resultBox.innerHTML = "<p>Analyzing sentiment... ⏳</p>";
+      commentsBox.innerHTML = "<p>Loading audience comments... ⏳</p>";
+
+      const start = performance.now();
+
+      try {
+        const response = await fetch(`/admin/analyze/${movieTitle}`);
+        const data = await response.json();
+        const end = performance.now();
+        const duration = ((end - start) / 1000).toFixed(2);
+
+        if (response.ok) {
+          // Display all comments
+          commentsBox.innerHTML = `
+            <h2>Audience Comments</h2>
+            <div class="comment-table">
+              <div class="comment-column positive">
+                <h4>👍 Positive</h4>
+                ${data.all_positive.map(txt => `<div class="comment-card">${txt}</div>`).join('')}
+              </div>
+              <div class="comment-column negative">
+                <h4>👎 Negative</h4>
+                ${data.all_negative.map(txt => `<div class="comment-card">${txt}</div>`).join('')}
+              </div>
+            </div>
+          `;
+
+          // Analysis Results
+          resultBox.innerHTML = `
+            <h2>Sentiment Analysis (Completed in ${duration}s)</h2>
+            <p><strong>Total Reviews:</strong> ${data.total_reviews}</p>
+            <p><strong>Positive:</strong> ${data.positive_pct}%</p>
+            <p><strong>Negative:</strong> ${data.negative_pct}%</p>
+
+            <h3>Top Positive Comments</h3>
+            <ul>${data.top_positive.map(txt => `<li>${txt}</li>`).join('')}</ul>
+
+            <h3>Top Negative Comments</h3>
+            <ul>${data.top_negative.map(txt => `<li>${txt}</li>`).join('')}</ul>
+
+            <h3>Director Feedback & Recommendations</h3>
+            <div class="feedback-section" style="background: #f4f6ff; padding: 1rem; border-radius: 8px;">
+              ${data.feedback}
+            </div>
+          `;
+        } else {
+          resultBox.innerHTML = `<p style='color: red;'>${data.error}</p>`;
+          commentsBox.innerHTML = "";
+        }
+      } catch (err) {
+        resultBox.innerHTML = `<p style='color: red;'>An error occurred during analysis.</p>`;
+        commentsBox.innerHTML = "";
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <header>
+    <h1>{{ movie.movie_name }}</h1>
+    <p>Admin Sentiment Review Summary</p>
+  </header>
+
+  <div class="content">
+    <div class="poster">
+      {% if movie.poster %}
+        <img src="{{ movie.poster }}" alt="{{ movie.movie_name }}">
+      {% else %}
+        <img src="/static/ImageNotFound.png" alt="No Poster Available">
+      {% endif %}
+    </div>
+
+    <div class="details">
+      <p><span class="label">Genre:</span>
+        {% if movie.genre is string and movie.genre.isdigit() %}
+          {{ movie.genre }}
+        {% elif movie.genre is string and movie.genre|length > 0 %}
+          {% set genre_ids = movie.genre.split(',') %}
+          {% set genre_names = [] %}
+          {% set genre_mapping = {
+            '28': 'Action', '12': 'Adventure', '16': 'Animation', '35': 'Comedy',
+            '80': 'Crime', '99': 'Documentary', '18': 'Drama', '10751': 'Family',
+            '14': 'Fantasy', '36': 'History', '27': 'Horror', '10402': 'Music',
+            '9648': 'Mystery', '10749': 'Romance', '878': 'Sci-Fi',
+            '10770': 'TV Movie', '53': 'Thriller', '10752': 'War', '37': 'Western'
+          } %}
+          {% for id in genre_ids %}
+            {% set _ = genre_names.append(genre_mapping.get(id.strip(), id.strip())) %}
+          {% endfor %}
+          {{ genre_names | join(', ') }}
+        {% else %}
+          {{ movie.genre or "N/A" }}
+        {% endif %}
+      </p>
+      <p><span class="label">Director:</span> {{ movie.director if movie.director != 'N/A' else "Unavailable" }}</p>
+      <p><span class="label">Stars:</span> {{ movie.star if movie.star != 'N/A' else "Unavailable" }}</p>
+      <p><span class="label">Overview:</span><br>{{ movie.description or "No description available." }}</p>
+      <br>
+      <button class="analyze-btn" onclick="analyzeSentiment('{{ movie.movie_name }}')">🔍 Analyze Reviews</button>
+    </div>
+  </div>
+
+  <!-- New Comments Section -->
+  <div class="section" id="comments-section">
+    <h2>Audience Comments</h2>
+    <p>Click the analyze button to load audience feedback.</p>
+  </div>
+
+  <!-- Existing Analysis Results -->
+  <div class="section" id="analysis-results">
+    <h2>Analysis Results</h2>
+    <p>Click the analyze button to generate sentiment insights.</p>
+  </div>
+</body>
+</html>

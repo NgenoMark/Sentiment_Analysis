@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ movie.movie_name }} | PulseReel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #f8f9fa, #eaf1fc);
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .content {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    .poster {
+      flex: 1;
+    }
+
+    .poster img {
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .details {
+      flex: 2;
+    }
+
+    .details h1 {
+      margin-top: 0;
+      color: #2575fc;
+      font-size: 2.5rem;
+    }
+
+    .details p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin: 0.5rem 0;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #444;
+    }
+
+    a.back {
+      display: inline-block;
+      margin: 2rem auto 0;
+      text-align: center;
+      background: #2575fc;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+
+    a.back:hover {
+      background: #1b5edb;
+    }
+
+    .section {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      color: #2575fc;
+    }
+
+    .similar-movies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .similar-movie-card {
+      width: 180px;
+      text-align: center;
+    }
+
+    .similar-movie-card img {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .similar-movie-card p {
+      margin-top: 0.5rem;
+      font-weight: 600;
+    }
+  </style>
+  <script>
+  async function submitComment() {
+    const comment = document.getElementById("comment-text").value.trim();
+    const status = document.getElementById("comment-status");
+    if (!comment) {
+      status.innerText = "Please enter a comment.";
+      status.style.color = "red";
+      return;
+    }
+
+    status.innerText = "Posting comment...";
+    status.style.color = "#333";
+
+    try {
+      const response = await fetch("/comment", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ comment: comment, movie_name: "{{ movie.movie_name }}" })
+
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        status.innerText = result.message || "Comment posted successfully.";
+        status.style.color = "green";
+        document.getElementById("comment-text").value = "";
+      } else {
+        status.innerText = result.error || "Failed to post comment.";
+        status.style.color = "red";
+      }
+    } catch (error) {
+      status.innerText = "An error occurred. Please try again.";
+      status.style.color = "red";
+    }
+  }
+</script>
+
+</head>
+<body>
+
+  <header>
+    <h1>{{ movie.movie_name }}</h1>
+    <p>Your personalized movie recommendation</p>
+  </header>
+
+  <div class="content">
+    <div class="poster">
+      {% if movie.poster %}
+        <img src="{{ movie.poster }}" alt="{{ movie.movie_name }}">
+      {% else %}
+        <img src="https://via.placeholder.com/300x450?text=No+Poster" alt="No Poster Available">
+      {% endif %}
+    </div>
+
+    <div class="details">
+      <p><span class="label">Genre:</span> {{ movie.genre or "N/A" }}</p>
+      <p><span class="label">Director:</span> {{ movie.director or "N/A" }}</p>
+      <p><span class="label">Stars:</span> {{ movie.star or "N/A" }}</p>
+      <p><span class="label">Overview:</span><br>{{ movie.description or "No description available." }}</p>
+    </div>
+  </div>
+
+  <div class="section">
+  <h2>🗨️ Share Your Thoughts</h2>
+  <form id="comment-form" onsubmit="event.preventDefault(); submitComment();">
+    <textarea id="comment-text" placeholder="What did you think about this movie?" rows="4" style="width: 100%; padding: 10px; font-family: 'Outfit', sans-serif; font-size: 1rem; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+    <br><br>
+    <button type="submit" style="padding: 10px 20px; background-color: #2575fc; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">📤 Post Comment</button>
+    <p id="comment-status" style="margin-top: 1rem;"></p>
+  </form>
+  </div>
+
+
+  <div class="section">
+    <h2>🎞️ Trailer</h2>
+    <div style="text-align: center;">
+      {% if trailer_id %}
+        <iframe width="720" height="400" src="https://www.youtube.com/embed/{{ trailer_id }}"
+                title="{{ movie.movie_name }} trailer" frameborder="0" allowfullscreen style="border-radius: 12px;"></iframe>
+      {% else %}
+        <p>No trailer available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🎬 Similar Movies</h2>
+    <div class="similar-movies">
+      {% if similar_movies %}
+        {% for similar in similar_movies %}
+          <div class="similar-movie-card">
+            <a href="/movie/{{ similar.movie_name | urlencode }}">
+              <img src="{{ similar.poster }}" alt="{{ similar.movie_name }}">
+              <p>{{ similar.movie_name }}</p>
+            </a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No similar movies available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div style="text-align: center;">
+    <a href="/" class="back">← Back to Recommendations</a>
+  </div>
+
+</body>
+</html>

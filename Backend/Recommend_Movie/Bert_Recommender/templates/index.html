@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PulseReel Movie Recommender</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    .search-bar {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .search-bar input {
+      width: 50%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .search-bar button {
+      padding: 0.75rem 1.5rem;
+      background-color: #2575fc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      margin-left: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 1rem 2rem;
+    }
+    .movie-card {
+      background: white;
+      margin: 1rem;
+      padding: 1rem;
+      width: 200px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      text-align: center;
+    }
+    .movie-card:hover {
+      transform: translateY(-5px);
+    }
+    .movie-card img {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+    }
+    .movie-card h3 {
+      margin: 0.5rem 0;
+      color: #2575fc;
+      font-size: 1.1rem;
+    }
+    .spinner {
+      display: none;
+      margin: 20px auto;
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #no-results {
+      text-align: center;
+      font-style: italic;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎬 PulseReel Movie Recommender</h1>
+    <p>Discover and explore your next favorite film</p>
+  </header>
+
+  <div class="search-bar">
+    <input type="text" id="query" placeholder="Describe a movie or plot idea..." />
+    <button onclick="getRecommendations()">🎯 Recommend</button>
+  </div>
+
+  <div class="spinner" id="spinner"></div>
+  <div class="container" id="results"></div>
+  <div id="no-results"></div>
+
+  <script>
+    async function getRecommendations() {
+      const query = document.getElementById("query").value.trim();
+      const resultsDiv = document.getElementById("results");
+      const spinner = document.getElementById("spinner");
+      const noResults = document.getElementById("no-results");
+
+      resultsDiv.innerHTML = "";
+      noResults.innerHTML = "";
+      spinner.style.display = "block";
+
+      try {
+        const response = await fetch("/recommend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query })
+        });
+
+        const data = await response.json();
+        spinner.style.display = "none";
+
+        if (!data || data.length === 0 || data.error) {
+          noResults.innerHTML = "No recommendations found.";
+          return;
+        }
+
+        for (const movie of data) {
+          const movieCard = document.createElement("div");
+          movieCard.className = "movie-card";
+          movieCard.innerHTML = `
+            <img src="${movie.poster}" alt="${movie.title}" />
+            <h3>${movie.title}</h3>
+          `;
+          movieCard.onclick = () => {
+            window.location.href = `/movie/${encodeURIComponent(movie.title)}`;
+          };
+          resultsDiv.appendChild(movieCard);
+        }
+      } catch (error) {
+        spinner.style.display = "none";
+        noResults.innerHTML = "An error occurred. Please try again.";
+      }
+    }
+
+    // Load random default movies on homepage
+    window.onload = async () => {
+      const res = await fetch('/recommend', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: "action adventure hero" })
+      });
+
+      const data = await res.json();
+      if (data && data.length > 0) {
+        for (const movie of data) {
+          const movieCard = document.createElement("div");
+          movieCard.className = "movie-card";
+          movieCard.innerHTML = `
+            <img src="${movie.poster}" alt="${movie.title}" />
+            <h3>${movie.title}</h3>
+          `;
+          movieCard.onclick = () => {
+            window.location.href = `/movie/${encodeURIComponent(movie.title)}`;
+          };
+          document.getElementById("results").appendChild(movieCard);
+        }
+      }
+    };
+  </script>
+</body>
+</html>
